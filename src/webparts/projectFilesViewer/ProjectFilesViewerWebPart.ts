@@ -10,7 +10,7 @@ import { SPComponentLoader } from '@microsoft/sp-loader';
 
 import * as strings from 'ProjectFilesViewerWebPartStrings';
 import ProjectFilesViewer from './components/ProjectFilesViewer';
-import { IProjectFilesViewerProps } from './components/IProjectFilesViewerProps';
+import { IProjectFilesViewerProps } from './components/models/IProjectFilesViewerProps';
 
 export interface IProjectFilesViewerWebPartProps {
   description: string;

@@ -1,30 +1,36 @@
 import * as React from 'react';
-import styles from './ProjectFilesViewer.module.scss';
-import { IProjectFilesViewerProps } from './IProjectFilesViewerProps';
+import { IProjectFilesViewerProps } from './models/IProjectFilesViewerProps';
+import { IProjectFilesViewerState} from './models/IProjectFilesViewerState';
 import { escape } from '@microsoft/sp-lodash-subset';
-
-export default class ProjectFilesViewer extends React.Component<IProjectFilesViewerProps, {}> {
+export default class ProjectFilesViewer extends React.Component<IProjectFilesViewerProps, IProjectFilesViewerState> {
   constructor(props){
     super(props);
     this.state = {
-
+      url: ""
     };
+  }
+  componentDidMount(){
+    var id:string = document.URL.split('?')[1].split('&')[0].split('=')[1];
+    var site:string = document.URL.toLowerCase().split('project')[0];
+    var req:any = new XMLHttpRequest();
+    req.open('GET', site + '_api/ProjectData/Projects?$format=json&$filter=ProjectId%20eq%20guid%27' + id + '%27&$select=ProjectWorkspaceInternalUrl,Fase');
+    req.send('');
+    req.onreadystatechange = function(){
+      if(req.readyState === 4){
+        console.log(req.response);
+        var parsed = JSON.parse(req.response);
+        var projSite = parsed.value[0].ProjectWorkspaceInternalUrl;
+        var faseProj = parsed.value[0].Fase;
+        this.setState({
+          url:'"'+ projSite +'"/Shared Documents/"'+ faseProj +'"' 
+        })
+      }
+    }
   }
   public render(): React.ReactElement<{IProjectFilesViewerProps}> {
     return (
-      <div className={ styles.projectFilesViewer }>
-        <div className={ styles.container }>
-          <div className={ styles.row }>
-            <div className={ styles.column }>
-              <span className={ styles.title }>Welcome to SharePoint!</span>
-              <p className={ styles.subTitle }>Customize SharePoint experiences using Web Parts.</p>
-              <p className={ styles.description }>{escape(this.props.description)}</p>
-              <a href="https://aka.ms/spfx" className={ styles.button }>
-                <span className={ styles.label }>Learn more</span>
-              </a>
-            </div>
-          </div>
-        </div>
+      <div>
+        <iframe src={this.state.url}></iframe>
       </div>
     );
   }
