@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { IProjectFilesViewerProps } from './models/IProjectFilesViewerProps';
-import { State} from './models/IProjectFilesViewerState';
+import { IProjectFilesViewerState} from './models/IProjectFilesViewerState';
 import { escape } from '@microsoft/sp-lodash-subset';
-export default class ProjectFilesViewer extends React.Component<IProjectFilesViewerProps, State> {
+export default class ProjectFilesViewer extends React.Component<IProjectFilesViewerProps, IProjectFilesViewerState> {
   constructor(props){
     super(props);
     this.state = {
@@ -20,10 +20,9 @@ export default class ProjectFilesViewer extends React.Component<IProjectFilesVie
         console.log(req.response);
         var parsed = JSON.parse(req.response);
         var projSite = parsed.value[0].ProjectWorkspaceInternalUrl;
-        var FaseProj = parsed.value[0].Fase;
-        console.log(FaseProj);
+        var faseProj = parsed.value[0].Fase;
         this.setState({
-          url:'"'+ projSite +'"/Shared Documents/"'+ FaseProj +'"' 
+          url:'"'+ projSite +'"/Shared Documents/"'+ faseProj +'"' 
         })
       }
     }
