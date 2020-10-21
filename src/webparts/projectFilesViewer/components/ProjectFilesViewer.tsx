@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { IProjectFilesViewerProps } from './models/IProjectFilesViewerProps';
 import { IProjectFilesViewerState} from './models/IProjectFilesViewerState';
+import { Language } from "./models/Language"
 import { escape } from '@microsoft/sp-lodash-subset';
 export default class ProjectFilesViewer extends React.Component<IProjectFilesViewerProps, IProjectFilesViewerState> {
   constructor(props){
@@ -10,19 +11,53 @@ export default class ProjectFilesViewer extends React.Component<IProjectFilesVie
     };
   }
   componentDidMount(){
-    var id:string = document.URL.split('?')[1].split('&')[0].split('=')[1];
-    var site:string = document.URL.toLowerCase().split('project')[0];
-    var req:any = new XMLHttpRequest();
-    req.open('GET', site + '_api/ProjectData/Projects?$format=json&$filter=ProjectId%20eq%20guid%27' + id + '%27&$select=ProjectWorkspaceInternalUrl,Fase');
+    let iProps:Language;
+    if(this.props.language){
+      switch(this.props.language.toLowerCase()){
+        case "eng":
+          iProps = {
+            endpointPlace: "Projects",
+            projectId: "ProjectId",
+            urlProperty: "ProjectWorkspaceInternalUrl",
+            documentPlace: "Shared Documents"
+          }
+        break;
+        case "esp":
+          iProps = {
+            endpointPlace: "Proyectos",
+            projectId: "IdDelProyecto",
+            urlProperty: "URLInternaDelEspacioDeTrabajoDelProyecto",
+            documentPlace: "Documentos compartidos"
+          }
+        break;
+        default:
+          iProps = {
+            endpointPlace: "Proyectos",
+            projectId: "IdDelProyecto",
+            urlProperty: "URLInternaDelEspacioDeTrabajoDelProyecto",
+            documentPlace: "Documentos compartidos"
+          }
+        break;
+      }
+    }else{
+      iProps = {
+        endpointPlace: "Proyectos",
+        projectId: "IdDelProyecto",
+        urlProperty: "URLInternaDelEspacioDeTrabajoDelProyecto",
+        documentPlace: "Documentos compartidos"
+      }
+    }
+    let id:string = document.URL.split('?')[1].split('&')[0].split('=')[1];
+    let site:string = document.URL.toLowerCase().split('project')[0];
+    let req:any = new XMLHttpRequest();
+    req.open('GET', site + `_api/ProjectData/${iProps.endpointPlace}?$format=json&$filter=${iProps.projectId}%20eq%20guid%27${id}%27`);
     req.send('');
-    req.onreadystatechange = function(){
+    req.onreadystatechange = () =>{
       if(req.readyState === 4){
-        console.log(req.response);
-        var parsed = JSON.parse(req.response);
-        var projSite = parsed.value[0].ProjectWorkspaceInternalUrl;
-        var faseProj = parsed.value[0].Fase;
+        let parsed = JSON.parse(req.response);
+        let projSite = iProps.urlProperty == "ProjectWorkspaceInternalUrl" ? parsed.value[0].ProjectWorkspaceInternalUrl : parsed.value[0].URLInternaDelEspacioDeTrabajoDelProyecto
         this.setState({
-          url:'"'+ projSite +'"/Shared Documents/"'+ faseProj +'"' 
+          url: projSite +`/${iProps.documentPlace}/Forms/AllItems.aspx`
         })
       }
     }
@@ -30,7 +65,7 @@ export default class ProjectFilesViewer extends React.Component<IProjectFilesVie
   public render(): React.ReactElement<{IProjectFilesViewerProps}> {
     return (
       <div>
-        <iframe src={this.state.url}></iframe>
+        <iframe src={this.state.url} style={{width: "100%", height: "500px"}}></iframe>
       </div>
     );
   }
