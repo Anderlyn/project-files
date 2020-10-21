@@ -14,25 +14,16 @@ import { IProjectFilesViewerProps } from './components/models/IProjectFilesViewe
 
 export interface IProjectFilesViewerWebPartProps {
   description: string;
+  language: string;
 }
 
 export default class ProjectFilesViewerWebPart extends BaseClientSideWebPart <IProjectFilesViewerWebPartProps> {
-  public async onInit():Promise<void>{
-    const _ = await super.onInit();
-    let canvas:HTMLElement = document.querySelector(".SPCanvas-canvas");
-    canvas.style.maxWidth = "none";
-    let canvasZone:HTMLElement = document.querySelector(".CanvasZone");
-    canvasZone.style.maxWidth = "none";
-    let spNavBar:HTMLElement = document.querySelector(".spNav_f7fd2212");
-    spNavBar.style.maxWidth = "none";
-  }
-
   public render(): void {
-    this.loadSPJSOMScripts();
     const element: React.ReactElement<IProjectFilesViewerProps> = React.createElement(
       ProjectFilesViewer,
       {
-        description: this.properties.description
+        description: this.properties.description,
+        language: this.properties.language
       }
     );
     ReactDom.render(element, this.domElement);
@@ -43,7 +34,7 @@ export default class ProjectFilesViewerWebPart extends BaseClientSideWebPart <IP
   }
 
   protected get dataVersion(): Version {
-    return Version.parse('1.0');
+    return Version.parse('2.0');
   }
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
@@ -59,6 +50,9 @@ export default class ProjectFilesViewerWebPart extends BaseClientSideWebPart <IP
               groupFields: [
                 PropertyPaneTextField('description', {
                   label: strings.DescriptionFieldLabel
+                }),
+                PropertyPaneTextField('language', {
+                  label: strings.LanguageField
                 })
               ]
             }
@@ -66,40 +60,5 @@ export default class ProjectFilesViewerWebPart extends BaseClientSideWebPart <IP
         }
       ]
     };
-  }
-  private loadSPJSOMScripts() {
-    SPComponentLoader.loadScript('/_layouts/15/init.js', {
-      globalExportsName: '$_global_init'
-    })
-    .then((): Promise<{}> => {
-      return SPComponentLoader.loadScript('/_layouts/15/MicrosoftAjax.js', {
-        globalExportsName: 'Sys'
-      });
-    })
-    .then((): Promise<{}> => {
-      return SPComponentLoader.loadScript('/_layouts/15/ScriptResx.ashx?name=sp.res&culture=en-us', {
-        globalExportsName: 'Sys'
-      });
-    })
-    .then((): Promise<{}> => {
-      return SPComponentLoader.loadScript('/_layouts/15/SP.Runtime.js', {
-        globalExportsName: 'SP'
-      });
-    })
-    .then((): Promise<{}> => {
-      return SPComponentLoader.loadScript('/_layouts/15/SP.js', {
-        globalExportsName: 'SP'
-      });
-    })
-    .then((): Promise<{}> => {
-      return SPComponentLoader.loadScript('/_layouts/15/sp.init.js', {
-        globalExportsName: 'SP'
-      });
-    })
-    .then((): Promise<{}> => {
-      return SPComponentLoader.loadScript('/_layouts/15/sp.ui.dialog.js', {
-        globalExportsName: 'SP'
-      });
-    });
   }
 }

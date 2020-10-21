@@ -2,6 +2,7 @@ declare interface IProjectFilesViewerWebPartStrings {
   PropertyPaneDescription: string;
   BasicGroupName: string;
   DescriptionFieldLabel: string;
+  LanguageField: string;
 }
 
 declare module 'ProjectFilesViewerWebPartStrings' {
