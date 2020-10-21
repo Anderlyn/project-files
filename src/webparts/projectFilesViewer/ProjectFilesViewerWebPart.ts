@@ -9,7 +9,7 @@ import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 
 import * as strings from 'ProjectFilesViewerWebPartStrings';
 import ProjectFilesViewer from './components/ProjectFilesViewer';
-import { IProjectFilesViewerProps } from './components/IProjectFilesViewerProps';
+import { IProjectFilesViewerProps } from './components/models/IProjectFilesViewerProps';
 
 export interface IProjectFilesViewerWebPartProps {
   description: string;
