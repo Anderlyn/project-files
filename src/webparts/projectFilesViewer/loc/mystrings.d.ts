@@ -3,6 +3,7 @@ declare interface IProjectFilesViewerWebPartStrings {
   BasicGroupName: string;
   DescriptionFieldLabel: string;
   LanguageField: string;
+  HeightField: string;
 }
 
 declare module 'ProjectFilesViewerWebPartStrings' {
