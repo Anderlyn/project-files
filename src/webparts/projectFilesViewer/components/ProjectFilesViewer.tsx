@@ -7,7 +7,8 @@ export default class ProjectFilesViewer extends React.Component<IProjectFilesVie
   constructor(props){
     super(props);
     this.state = {
-      url: ""
+      url: "",
+      isPDP: false
     };
   }
   componentDidMount(){
@@ -47,25 +48,36 @@ export default class ProjectFilesViewer extends React.Component<IProjectFilesVie
         documentPlace: "Documentos compartidos"
       }
     }
-    let id:string = document.URL.split('?')[1].split('&')[0].split('=')[1];
-    let site:string = document.URL.toLowerCase().split('project')[0];
-    let req:any = new XMLHttpRequest();
-    req.open('GET', site + `_api/ProjectData/${iProps.endpointPlace}?$format=json&$filter=${iProps.projectId}%20eq%20guid%27${id}%27`);
-    req.send('');
-    req.onreadystatechange = () =>{
-      if(req.readyState === 4){
-        let parsed = JSON.parse(req.response);
-        let projSite = iProps.urlProperty == "ProjectWorkspaceInternalUrl" ? parsed.value[0].ProjectWorkspaceInternalUrl : parsed.value[0].URLInternaDelEspacioDeTrabajoDelProyecto
-        this.setState({
-          url: projSite +`/${iProps.documentPlace}/Forms/AllItems.aspx`
-        })
+    let currentSiteUrl:any = document.URL.split("/");
+    (currentSiteUrl.indexOf("Project%20Detail%20Pages") == -1)? this.setState({isPDP:false}):this.setState({isPDP:true});
+    if(this.state.isPDP){
+      let id:string = document.URL.split('?')[1].split('&')[0].split('=')[1];
+      let site:string = document.URL.toLowerCase().split('project')[0];
+      let req:any = new XMLHttpRequest();
+      req.open('GET', site + `_api/ProjectData/${iProps.endpointPlace}?$format=json&$filter=${iProps.projectId}%20eq%20guid%27${id}%27`);
+      req.send('');
+      req.onreadystatechange = () =>{
+        if(req.readyState === 4){
+          let parsed = JSON.parse(req.response);
+          let projSite = iProps.urlProperty == "ProjectWorkspaceInternalUrl" ? parsed.value[0].ProjectWorkspaceInternalUrl : parsed.value[0].URLInternaDelEspacioDeTrabajoDelProyecto
+          this.setState({
+            url: projSite +`/${iProps.documentPlace}/Forms/AllItems.aspx`
+          })
+        }
       }
     }
   }
   public render(): React.ReactElement<{IProjectFilesViewerProps}> {
-    return (
+    if(this.state.isPDP){
+      return (
+        <div>
+          <iframe src={this.state.url} style={{width: "100%", height: "500px"}}></iframe>
+        </div>
+      );
+    }
+    return( 
       <div>
-        <iframe src={this.state.url} style={{width: "100%", height: "500px"}}></iframe>
+        <h1>No es PDP</h1>
       </div>
     );
   }
