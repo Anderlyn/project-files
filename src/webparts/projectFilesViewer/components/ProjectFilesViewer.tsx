@@ -9,8 +9,26 @@ export default class ProjectFilesViewer extends React.Component<IProjectFilesVie
     this.state = {
       url: "",
       loading: true,
-      isPDP: false
+      isPDP: false,
     };
+  }
+  componentDidUpdate(){
+    if(this.state.isPDP){
+      let workSpace = document.querySelector("#s4-workspace") as HTMLElement;
+      workSpace.style.overflow = "hidden";
+      let frameElementListener = document.getElementById("viewer") as HTMLElement;
+      frameElementListener.onload = function(){
+        let frameElement = document.getElementById("viewer") as HTMLIFrameElement;
+        let header = frameElement.contentWindow.document.getElementsByClassName("ms-DetailsList-headerWrapper")[0] as HTMLElement;
+        header.style.marginTop = "15px";
+        workSpace.style.overflow = "auto";
+        document.querySelector("#s4-workspace").scrollTop = 0;
+        document.querySelector("#s4-workspace").scrollTop = 0;
+        setTimeout(function(){
+          document.getElementById("viewer").style.display = "initial"
+        },1000);
+      }
+    }
   }
   componentDidMount(){
     let iProps:Language;
@@ -49,8 +67,8 @@ export default class ProjectFilesViewer extends React.Component<IProjectFilesVie
         documentPlace: "Documentos compartidos"
       }
     }
-    let currentSiteUrl:Array<string> = document.URL.split("/");
-    let isPDP:boolean = (currentSiteUrl.indexOf("Project%20Detail%20Pages") != -1)? true : false;
+    let currentSiteUrl:Array<string> = document.URL.toLowerCase().split("/");
+    let isPDP:boolean = (currentSiteUrl.indexOf("project%20detail%20pages") != -1) ? true : false;
     if(isPDP){
       let id:string = document.URL.split('?')[1].split('&')[0].split('=')[1];
       let site:string = document.URL.toLowerCase().split('project')[0];
@@ -58,6 +76,7 @@ export default class ProjectFilesViewer extends React.Component<IProjectFilesVie
       req.open('GET', site + `_api/ProjectData/${iProps.endpointPlace}?$format=json&$filter=${iProps.projectId}%20eq%20guid%27${id}%27`);
       req.send('');
       req.onreadystatechange = () =>{
+        let workSpace = document.querySelector("#s4-workspace") as HTMLElement;
         if(req.readyState === 4){
           let parsed = JSON.parse(req.response);
           let projSite = iProps.urlProperty == "ProjectWorkspaceInternalUrl" ? parsed.value[0].ProjectWorkspaceInternalUrl : parsed.value[0].URLInternaDelEspacioDeTrabajoDelProyecto
@@ -65,11 +84,11 @@ export default class ProjectFilesViewer extends React.Component<IProjectFilesVie
             url: projSite +`/${iProps.documentPlace}/Forms/AllItems.aspx`,
             loading: false,
             isPDP: true
-          })
+          });
+          workSpace.scrollTop = 0;
         }
       }
-    }
-    else{
+    }else{
       this.setState({loading:false});
     }
   }
@@ -84,13 +103,22 @@ export default class ProjectFilesViewer extends React.Component<IProjectFilesVie
       if(this.state.isPDP){
         return (
           <div>
-            <iframe src={this.state.url} style={{width: "100%", height: "500px"}}></iframe>
+              <iframe id='viewer' src={this.state.url} style={{
+              width: "100%", 
+              display: "none",
+              height: this.props.customHeight ? this.props.customHeight+"px" : "500px"
+              }}></iframe>
           </div>
         );
       }else{
         return( 
           <div>
-            <h1>No es PDP</h1>
+            <h1>Si estás leyendo esto, puede ser por las siguientes razones:</h1>
+            <ul>
+              <li>El webpart se utilizó en una página que no es PDP.</li>
+              <li>El proyecto no tiene librería de documentos asociada.</li>
+              <li>Hubo un error al traer la información del proyecto.</li>
+            </ul>
           </div>
         );
       }

@@ -57,7 +57,7 @@ export default class ProjectFilesViewerWebPart extends BaseClientSideWebPart <IP
                   label: strings.LanguageField
                 }),
                 PropertyPaneTextField('customHeight', {
-                  label: strings.HeightField
+                 label: strings.HeightField
                 })
               ]
             }
