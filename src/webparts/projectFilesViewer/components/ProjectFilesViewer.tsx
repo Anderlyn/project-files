@@ -8,6 +8,7 @@ export default class ProjectFilesViewer extends React.Component<IProjectFilesVie
     super(props);
     this.state = {
       url: "",
+      loading: true,
       isPDP: false
     };
   }
@@ -48,9 +49,9 @@ export default class ProjectFilesViewer extends React.Component<IProjectFilesVie
         documentPlace: "Documentos compartidos"
       }
     }
-    let currentSiteUrl:any = document.URL.split("/");
-    (currentSiteUrl.indexOf("Project%20Detail%20Pages") == -1)? this.setState({isPDP:false}):this.setState({isPDP:true});
-    if(this.state.isPDP){
+    let currentSiteUrl:Array<string> = document.URL.split("/");
+    let isPDP:boolean = (currentSiteUrl.indexOf("Project%20Detail%20Pages") != -1)? true : false;
+    if(isPDP){
       let id:string = document.URL.split('?')[1].split('&')[0].split('=')[1];
       let site:string = document.URL.toLowerCase().split('project')[0];
       let req:any = new XMLHttpRequest();
@@ -61,24 +62,38 @@ export default class ProjectFilesViewer extends React.Component<IProjectFilesVie
           let parsed = JSON.parse(req.response);
           let projSite = iProps.urlProperty == "ProjectWorkspaceInternalUrl" ? parsed.value[0].ProjectWorkspaceInternalUrl : parsed.value[0].URLInternaDelEspacioDeTrabajoDelProyecto
           this.setState({
-            url: projSite +`/${iProps.documentPlace}/Forms/AllItems.aspx`
+            url: projSite +`/${iProps.documentPlace}/Forms/AllItems.aspx`,
+            loading: false,
+            isPDP: true
           })
         }
       }
     }
+    else{
+      this.setState({loading:false});
+    }
   }
   public render(): React.ReactElement<{IProjectFilesViewerProps}> {
-    if(this.state.isPDP){
-      return (
+    if(this.state.loading){
+      return(
         <div>
-          <iframe src={this.state.url} style={{width: "100%", height: "500px"}}></iframe>
+          <h1>Loading...</h1>
         </div>
-      );
+      )
+    }else{
+      if(this.state.isPDP){
+        return (
+          <div>
+            <iframe src={this.state.url} style={{width: "100%", height: "500px"}}></iframe>
+          </div>
+        );
+      }else{
+        return( 
+          <div>
+            <h1>No es PDP</h1>
+          </div>
+        );
+      }
     }
-    return( 
-      <div>
-        <h1>No es PDP</h1>
-      </div>
-    );
   }
 }
