@@ -15,6 +15,7 @@ import { IProjectFilesViewerProps } from './components/models/IProjectFilesViewe
 export interface IProjectFilesViewerWebPartProps {
   description: string;
   language: string;
+  customHeight: string;
 }
 
 export default class ProjectFilesViewerWebPart extends BaseClientSideWebPart <IProjectFilesViewerWebPartProps> {
@@ -23,7 +24,8 @@ export default class ProjectFilesViewerWebPart extends BaseClientSideWebPart <IP
       ProjectFilesViewer,
       {
         description: this.properties.description,
-        language: this.properties.language
+        language: this.properties.language,
+        customHeight: this.properties.customHeight
       }
     );
     ReactDom.render(element, this.domElement);
@@ -53,6 +55,9 @@ export default class ProjectFilesViewerWebPart extends BaseClientSideWebPart <IP
                 }),
                 PropertyPaneTextField('language', {
                   label: strings.LanguageField
+                }),
+                PropertyPaneTextField('customHeight', {
+                  label: strings.HeightField
                 })
               ]
             }
